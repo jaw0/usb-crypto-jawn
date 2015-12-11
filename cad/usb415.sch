@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="1" fill="3" visible="no" active="no"/>
@@ -701,36 +701,6 @@ DOWN</text>
 <rectangle x1="0.7112" y1="-1.2954" x2="1.1684" y2="-0.7112" layer="51"/>
 <rectangle x1="-1.1684" y1="-1.2954" x2="-0.7112" y2="-0.7112" layer="51"/>
 </package>
-<package name="SMD0603D">
-<smd name="A" x="0.8" y="0" dx="0.8" dy="0.8" layer="1" rot="R180"/>
-<smd name="C" x="-0.8" y="0" dx="0.8" dy="0.8" layer="1" rot="R180"/>
-<text x="-1.778" y="1.016" size="1" layer="25" font="vector" ratio="10">&gt;NAME</text>
-<text x="-1.778" y="-2.086" size="1" layer="27" font="vector" ratio="10">&gt;VALUE</text>
-<wire x1="0.2" y1="-0.3" x2="0.2" y2="0.3" width="0.1" layer="21"/>
-<wire x1="0.2" y1="0.3" x2="-0.3" y2="0" width="0.1" layer="21"/>
-<wire x1="-0.3" y1="0" x2="0.2" y2="-0.3" width="0.1" layer="21"/>
-<wire x1="-0.3" y1="-0.8" x2="-0.3" y2="0" width="0.1" layer="21"/>
-<wire x1="-0.3" y1="0" x2="-0.3" y2="0.8" width="0.1" layer="21"/>
-<wire x1="1.6" y1="-0.8" x2="-0.3" y2="-0.8" width="0.1" layer="21"/>
-<wire x1="-0.3" y1="-0.8" x2="-1.6" y2="-0.8" width="0.1" layer="21"/>
-<wire x1="-1.6" y1="-0.8" x2="-1.6" y2="0.8" width="0.1" layer="21"/>
-<wire x1="-1.6" y1="0.8" x2="-0.3" y2="0.8" width="0.1" layer="21"/>
-<wire x1="-0.3" y1="0.8" x2="1.6" y2="0.8" width="0.1" layer="21"/>
-<wire x1="1.6" y1="0.8" x2="1.6" y2="-0.8" width="0.1" layer="21"/>
-<rectangle x1="-1.6" y1="-0.8" x2="-1.3" y2="0.8" layer="21" rot="R180"/>
-</package>
-<package name="LED4-4P1A">
-<smd name="C" x="-1.4" y="0" dx="0.6" dy="3.2" layer="1"/>
-<smd name="A" x="1.4" y="0" dx="0.6" dy="3.2" layer="1"/>
-<smd name="AP" x="0" y="0" dx="1.2" dy="3.2" layer="1"/>
-<wire x1="-1.8" y1="1.8" x2="1.8" y2="1.8" width="0.1" layer="21"/>
-<wire x1="1.8" y1="1.8" x2="1.8" y2="-1.8" width="0.1" layer="21"/>
-<wire x1="1.8" y1="-1.8" x2="-1.8" y2="-1.8" width="0.1" layer="21"/>
-<rectangle x1="-2" y1="-1.8" x2="-1.7" y2="1.8" layer="21"/>
-<rectangle x1="-1.1" y1="-1.8" x2="-0.6" y2="1.8" layer="21"/>
-<text x="-2" y="2.1" size="1" layer="25" ratio="10">&gt;NAME</text>
-<text x="-2" y="-3" size="1" layer="27" ratio="10">&gt;VALUE</text>
-</package>
 <package name="ROBOTMAN-LOGO">
 <wire x1="-1.5" y1="4" x2="0" y2="4" width="0.25" layer="21"/>
 <wire x1="0" y1="4" x2="1.5" y2="4" width="0.25" layer="21"/>
@@ -983,6 +953,46 @@ DOWN</text>
 <rectangle x1="-5.8999" y1="-3.4" x2="-4.95" y2="-3.1001" layer="51"/>
 <rectangle x1="-5.8999" y1="-3.8999" x2="-4.95" y2="-3.5999" layer="51"/>
 </package>
+<package name="SMDLEDRGB">
+<wire x1="-0.8" y1="-1.3" x2="0.8" y2="-1.3" width="0.1" layer="21"/>
+<wire x1="-0.8" y1="1.3" x2="0.8" y2="1.3" width="0.1" layer="21"/>
+<smd name="CB" x="-0.8" y="0.8" dx="0.6" dy="0.6" layer="1" rot="R90"/>
+<smd name="CR" x="-0.8" y="0" dx="0.6" dy="0.6" layer="1" rot="R90"/>
+<smd name="CG" x="-0.8" y="-0.8" dx="0.6" dy="0.6" layer="1" rot="R90"/>
+<smd name="AB" x="0.8" y="0.8" dx="0.6" dy="0.6" layer="1" rot="R90"/>
+<smd name="AR" x="0.8" y="0" dx="0.6" dy="0.6" layer="1" rot="R90"/>
+<smd name="AG" x="0.8" y="-0.8" dx="0.6" dy="0.6" layer="1" rot="R90"/>
+<text x="-1.905" y="-1.27" size="1.27" layer="25" font="vector" ratio="10" rot="R90">&gt;NAME</text>
+<wire x1="-0.3" y1="0.8" x2="-0.3" y2="0" width="0.1" layer="21"/>
+<wire x1="-0.3" y1="0" x2="-0.3" y2="-0.8" width="0.1" layer="21"/>
+<wire x1="-0.3" y1="0" x2="0.3" y2="0.4" width="0.1" layer="21"/>
+<wire x1="-0.3" y1="0" x2="0.3" y2="-0.4" width="0.1" layer="21"/>
+<wire x1="0.3" y1="-0.4" x2="0.3" y2="0.4" width="0.1" layer="21"/>
+<wire x1="-1.3" y1="1.3" x2="-1.3" y2="-1.3" width="0.15" layer="21"/>
+<wire x1="-0.8" y1="1.3" x2="-0.8" y2="1.1" width="0.1" layer="21"/>
+<wire x1="-0.8" y1="-1.3" x2="-0.8" y2="-1.1" width="0.1" layer="21"/>
+<wire x1="0.8" y1="-1.3" x2="0.8" y2="-1.1" width="0.1" layer="21"/>
+<wire x1="0.8" y1="1.3" x2="0.8" y2="1.1" width="0.1" layer="21"/>
+</package>
+<package name="MOLEX_480371000">
+<wire x1="5.8" y1="0" x2="5.8" y2="-17.5" width="0.127" layer="51"/>
+<wire x1="5.8" y1="-17.5" x2="-5.8" y2="-17.5" width="0.127" layer="51"/>
+<wire x1="-5.8" y1="-17.5" x2="-5.8" y2="0" width="0.127" layer="51"/>
+<smd name="1" x="3.5" y="2.6" dx="1.2" dy="2" layer="1"/>
+<smd name="2" x="1" y="2.6" dx="1.2" dy="2" layer="1"/>
+<smd name="3" x="-1" y="2.6" dx="1.2" dy="2" layer="1"/>
+<smd name="4" x="-3.5" y="2.6" dx="1.2" dy="2" layer="1"/>
+<text x="-2.54" y="-3.81" size="1.27" layer="25" font="vector">&gt;NAME</text>
+<text x="-2.54" y="-6.35" size="1.27" layer="27" font="vector">&gt;VALUE</text>
+<hole x="-2.25" y="0" drill="1.1"/>
+<hole x="2.25" y="0" drill="1.1"/>
+<smd name="P$1" x="-4.4" y="-0.5" dx="3" dy="1.5" layer="16" rot="R90"/>
+<smd name="P$2" x="4.4" y="-0.5" dx="3" dy="1.5" layer="16" rot="R90"/>
+<wire x1="-5.2" y1="1.5" x2="-5.2" y2="-2.5" width="0.127" layer="21"/>
+<wire x1="5.2" y1="1.5" x2="5.2" y2="-2.5" width="0.127" layer="21"/>
+<smd name="P$3" x="-4.4" y="-0.5" dx="3" dy="1.5" layer="1" rot="R90"/>
+<smd name="P$4" x="4.4" y="-0.5" dx="3" dy="1.5" layer="1" rot="R90"/>
+</package>
 </packages>
 <symbols>
 <symbol name="C">
@@ -1154,27 +1164,6 @@ DOWN</text>
 <pin name="S" x="0" y="-5.08" visible="off" length="short" direction="pas" rot="R90"/>
 <wire x1="2.54" y1="-1.905" x2="2.54" y2="-0.635" width="0.1524" layer="94"/>
 </symbol>
-<symbol name="LED">
-<pin name="A" x="-5.08" y="0" visible="off" length="point" direction="pas"/>
-<pin name="C" x="5.08" y="0" visible="off" length="point" direction="pas" rot="R180"/>
-<wire x1="-2.54" y1="2.54" x2="-2.54" y2="0" width="0.254" layer="94"/>
-<wire x1="-2.54" y1="0" x2="-2.54" y2="-2.54" width="0.254" layer="94"/>
-<wire x1="-2.54" y1="-2.54" x2="2.54" y2="0" width="0.254" layer="94"/>
-<wire x1="2.54" y1="0" x2="-2.54" y2="2.54" width="0.254" layer="94"/>
-<wire x1="2.54" y1="2.54" x2="2.54" y2="0" width="0.254" layer="94"/>
-<wire x1="2.54" y1="0" x2="2.54" y2="-2.54" width="0.254" layer="94"/>
-<wire x1="-5.08" y1="0" x2="-2.54" y2="0" width="0.254" layer="94"/>
-<wire x1="5.08" y1="0" x2="2.54" y2="0" width="0.254" layer="94"/>
-<wire x1="0.508" y1="4.064" x2="-1.524" y2="1.016" width="0.254" layer="94"/>
-<wire x1="-0.254" y1="0.508" x2="1.778" y2="3.556" width="0.254" layer="94"/>
-<wire x1="0.508" y1="4.064" x2="-0.508" y2="3.302" width="0.254" layer="94"/>
-<wire x1="-0.508" y1="3.302" x2="0.254" y2="2.794" width="0.254" layer="94"/>
-<wire x1="0.254" y1="2.794" x2="0.508" y2="4.064" width="0.254" layer="94"/>
-<wire x1="1.778" y1="3.556" x2="0.762" y2="2.794" width="0.254" layer="94"/>
-<wire x1="0.762" y1="2.794" x2="1.524" y2="2.286" width="0.254" layer="94"/>
-<wire x1="1.524" y1="2.286" x2="1.778" y2="3.556" width="0.254" layer="94"/>
-<text x="-5.08" y="-5.08" size="2.54" layer="95">&gt;NAME</text>
-</symbol>
 <symbol name="ROBOTMAN-LOGO">
 <text x="-2.54" y="0" size="1.27" layer="94">ROBOT
 LOGO</text>
@@ -1263,6 +1252,59 @@ LOGO</text>
 <wire x1="-2.54" y1="-2.54" x2="2.54" y2="-2.54" width="0.254" layer="94"/>
 <text x="-12.7" y="48.26" size="1.778" layer="95">&gt;NAME</text>
 <text x="5.08" y="48.26" size="1.778" layer="96">&gt;VALUE</text>
+</symbol>
+<symbol name="LED-RGB3">
+<wire x1="-7.62" y1="5.08" x2="-7.62" y2="-5.08" width="0.4064" layer="94"/>
+<wire x1="-7.62" y1="-5.08" x2="7.62" y2="-5.08" width="0.4064" layer="94"/>
+<wire x1="7.62" y1="-5.08" x2="7.62" y2="5.08" width="0.4064" layer="94"/>
+<wire x1="7.62" y1="5.08" x2="-7.62" y2="5.08" width="0.4064" layer="94"/>
+<text x="-7.62" y="5.715" size="1.778" layer="95">&gt;NAME</text>
+<text x="-7.62" y="-7.62" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="CB" x="-12.7" y="2.54" length="middle"/>
+<pin name="CR" x="-12.7" y="0" length="middle"/>
+<pin name="CG" x="-12.7" y="-2.54" length="middle"/>
+<pin name="AG" x="12.7" y="-2.54" length="middle" rot="R180"/>
+<pin name="AR" x="12.7" y="0" length="middle" rot="R180"/>
+<pin name="AB" x="12.7" y="2.54" length="middle" rot="R180"/>
+<wire x1="-2.54" y1="2.54" x2="-2.54" y2="0" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="0" x2="-2.54" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="0" x2="2.54" y2="2.54" width="0.254" layer="94"/>
+<wire x1="2.54" y1="2.54" x2="2.54" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="2.54" y1="-2.54" x2="-2.54" y2="0" width="0.254" layer="94"/>
+</symbol>
+<symbol name="USB-4">
+<wire x1="-10.2" y1="7.62" x2="-10.16" y2="7.62" width="0.254" layer="94"/>
+<wire x1="-10.16" y1="7.62" x2="7.62" y2="7.62" width="0.254" layer="94"/>
+<wire x1="7.62" y1="7.62" x2="7.62" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="-1.32" y1="1.6" x2="-3.47" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-3.47" y1="1.6" x2="-4.22" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-5.52" y1="3.2" x2="-4.52" y2="3.2" width="0.254" layer="94"/>
+<wire x1="-6.27" y1="0.15" x2="-5.07" y2="0.15" width="0.254" layer="94"/>
+<wire x1="-5.07" y1="0.15" x2="-4.22" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-4.52" y1="3.2" x2="-3.47" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-4.22" y1="1.6" x2="-7.92" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-7.92" y1="1.6" x2="-7.92" y2="0.8" width="0.254" layer="94"/>
+<wire x1="-7.92" y1="0.8" x2="-8.12" y2="0.8" width="0.254" layer="94"/>
+<wire x1="-8.12" y1="0.8" x2="-8.92" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-8.92" y1="1.6" x2="-8.12" y2="2.4" width="0.254" layer="94"/>
+<wire x1="-8.12" y1="1" x2="-8.12" y2="2.4" width="0.254" layer="94"/>
+<wire x1="-8.12" y1="2.4" x2="-7.92" y2="2.4" width="0.254" layer="94"/>
+<wire x1="-7.92" y1="2.4" x2="-7.92" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-8.52" y1="1.6" x2="-8.52" y2="1.4" width="0.254" layer="94"/>
+<wire x1="-8.52" y1="1.4" x2="-8.32" y2="1.2" width="0.254" layer="94"/>
+<wire x1="-8.32" y1="1.2" x2="-8.32" y2="2" width="0.254" layer="94"/>
+<wire x1="-8.32" y1="2" x2="-8.72" y2="1.6" width="0.254" layer="94"/>
+<wire x1="-10.16" y1="7.62" x2="-10.16" y2="-5.08" width="0.254" layer="94"/>
+<wire x1="-10.16" y1="-5.08" x2="7.62" y2="-5.08" width="0.254" layer="94"/>
+<circle x="-1.32" y="1.6" radius="0.5" width="1" layer="94"/>
+<circle x="-5.92" y="3.2" radius="0.2" width="1" layer="94"/>
+<text x="-10.16" y="8.636" size="1.27" layer="95">&gt;NAME</text>
+<text x="-10.16" y="-7.62" size="1.27" layer="96">&gt;VALUE</text>
+<rectangle x1="-7.12" y1="-0.45" x2="-5.92" y2="0.75" layer="94"/>
+<pin name="D+" x="10.16" y="2.54" visible="pin" length="short" rot="R180"/>
+<pin name="D-" x="10.16" y="0" visible="pin" length="short" rot="R180"/>
+<pin name="VBUS" x="10.16" y="5.08" visible="pin" length="short" direction="pwr" rot="R180"/>
+<pin name="GND" x="10.16" y="-2.54" visible="pin" length="short" direction="pwr" rot="R180"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -1738,31 +1780,6 @@ LOGO</text>
 </device>
 </devices>
 </deviceset>
-<deviceset name="LED" prefix="LED">
-<gates>
-<gate name="G$1" symbol="LED" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="SMD0603D">
-<connects>
-<connect gate="G$1" pin="A" pad="A"/>
-<connect gate="G$1" pin="C" pad="C"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-<device name="-L4-P1A" package="LED4-4P1A">
-<connects>
-<connect gate="G$1" pin="A" pad="A AP"/>
-<connect gate="G$1" pin="C" pad="C"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
 <deviceset name="ROBOTMAN-LOGO">
 <gates>
 <gate name="G$1" symbol="ROBOTMAN-LOGO" x="0" y="0"/>
@@ -1854,51 +1871,12 @@ LOGO</text>
 </device>
 </devices>
 </deviceset>
-</devicesets>
-</library>
-<library name="dp_devices">
-<description>Dangerous Prototypes Standard PCB sizes
-http://dangerousprototypes.com</description>
-<packages>
-<package name="RGBLED">
-<wire x1="-0.8" y1="0.8" x2="-0.8" y2="-0.8" width="0.127" layer="21"/>
-<wire x1="-0.8" y1="-0.8" x2="0.8" y2="-0.8" width="0.127" layer="21"/>
-<wire x1="0.8" y1="-0.8" x2="0.8" y2="0.8" width="0.127" layer="21"/>
-<wire x1="-0.8" y1="0.8" x2="0.8" y2="0.8" width="0.127" layer="21"/>
-<circle x="-1.4" y="0.4" radius="0.1" width="0.127" layer="21"/>
-<circle x="-1.4" y="-0.4" radius="0.1" width="0.127" layer="21"/>
-<smd name="CB" x="-0.8" y="0.8" dx="0.6" dy="0.6" layer="1" rot="R90"/>
-<smd name="CR" x="-0.8" y="0" dx="0.6" dy="0.6" layer="1" rot="R90"/>
-<smd name="CG" x="-0.8" y="-0.8" dx="0.6" dy="0.6" layer="1" rot="R90"/>
-<smd name="AB" x="0.8" y="0.8" dx="0.6" dy="0.6" layer="1" rot="R90"/>
-<smd name="AR" x="0.8" y="0" dx="0.6" dy="0.6" layer="1" rot="R90"/>
-<smd name="AG" x="0.8" y="-0.8" dx="0.6" dy="0.6" layer="1" rot="R90"/>
-<text x="-1.905" y="-1.27" size="1.27" layer="25" font="vector" ratio="10" rot="R90">&gt;NAME</text>
-</package>
-</packages>
-<symbols>
-<symbol name="RGB3">
-<wire x1="-7.62" y1="5.08" x2="-7.62" y2="-5.08" width="0.4064" layer="94"/>
-<wire x1="-7.62" y1="-5.08" x2="7.62" y2="-5.08" width="0.4064" layer="94"/>
-<wire x1="7.62" y1="-5.08" x2="7.62" y2="5.08" width="0.4064" layer="94"/>
-<wire x1="7.62" y1="5.08" x2="-7.62" y2="5.08" width="0.4064" layer="94"/>
-<text x="-7.62" y="5.715" size="1.778" layer="95">&gt;NAME</text>
-<text x="-7.62" y="-7.62" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="CB" x="-12.7" y="2.54" length="middle"/>
-<pin name="CR" x="-12.7" y="0" length="middle"/>
-<pin name="CG" x="-12.7" y="-2.54" length="middle"/>
-<pin name="AG" x="12.7" y="-2.54" length="middle" rot="R180"/>
-<pin name="AR" x="12.7" y="0" length="middle" rot="R180"/>
-<pin name="AB" x="12.7" y="2.54" length="middle" rot="R180"/>
-</symbol>
-</symbols>
-<devicesets>
 <deviceset name="LED_RGB3" prefix="LED">
 <gates>
-<gate name="G$1" symbol="RGB3" x="0" y="0"/>
+<gate name="G$1" symbol="LED-RGB3" x="0" y="0"/>
 </gates>
 <devices>
-<device name="" package="RGBLED">
+<device name="" package="SMDLEDRGB">
 <connects>
 <connect gate="G$1" pin="AB" pad="AB"/>
 <connect gate="G$1" pin="AG" pad="AG"/>
@@ -1906,6 +1884,27 @@ http://dangerousprototypes.com</description>
 <connect gate="G$1" pin="CB" pad="CB"/>
 <connect gate="G$1" pin="CG" pad="CG"/>
 <connect gate="G$1" pin="CR" pad="CR"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="USB-A" prefix="X">
+<description>&lt;b&gt;USB type A 'plug'&lt;/b&gt;
+&lt;p&gt;
+Used for things that can directly connect to a USB port, say USB key</description>
+<gates>
+<gate name="G$1" symbol="USB-4" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="MOLEX_480371000">
+<connects>
+<connect gate="G$1" pin="D+" pad="3"/>
+<connect gate="G$1" pin="D-" pad="2"/>
+<connect gate="G$1" pin="GND" pad="4"/>
+<connect gate="G$1" pin="VBUS" pad="1"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -1972,21 +1971,6 @@ http://dangerousprototypes.com</description>
 </library>
 <library name="adafruit">
 <packages>
-<package name="MOLEX_480371000">
-<wire x1="5.8" y1="0" x2="5.8" y2="-17.5" width="0.127" layer="21"/>
-<wire x1="5.8" y1="-17.5" x2="-5.8" y2="-17.5" width="0.127" layer="21"/>
-<wire x1="-5.8" y1="-17.5" x2="-5.8" y2="0" width="0.127" layer="21"/>
-<pad name="M1" x="-5.7" y="0" drill="2.5" rot="R90"/>
-<pad name="M2" x="5.7" y="0" drill="2.5" rot="R90"/>
-<smd name="1" x="3.5" y="2.6" dx="1.2" dy="2" layer="1"/>
-<smd name="2" x="1" y="2.6" dx="1.2" dy="2" layer="1"/>
-<smd name="3" x="-1" y="2.6" dx="1.2" dy="2" layer="1"/>
-<smd name="4" x="-3.5" y="2.6" dx="1.2" dy="2" layer="1"/>
-<text x="-2.54" y="-3.81" size="1.27" layer="25" font="vector">&gt;NAME</text>
-<text x="-2.54" y="-6.35" size="1.27" layer="27" font="vector">&gt;VALUE</text>
-<hole x="-2.25" y="0" drill="1.1"/>
-<hole x="2.25" y="0" drill="1.1"/>
-</package>
 <package name="FIDUCIAL_1MM">
 <smd name="1" x="0" y="0" dx="1" dy="1" layer="1" roundness="100" stop="no" cream="no"/>
 <polygon width="0.127" layer="29">
@@ -2004,66 +1988,11 @@ http://dangerousprototypes.com</description>
 </package>
 </packages>
 <symbols>
-<symbol name="USB-4">
-<wire x1="-10.2" y1="7.62" x2="-10.16" y2="7.62" width="0.254" layer="94"/>
-<wire x1="-10.16" y1="7.62" x2="7.62" y2="7.62" width="0.254" layer="94"/>
-<wire x1="7.62" y1="7.62" x2="7.62" y2="-5.08" width="0.254" layer="94"/>
-<wire x1="-1.32" y1="1.6" x2="-3.47" y2="1.6" width="0.254" layer="94"/>
-<wire x1="-3.47" y1="1.6" x2="-4.22" y2="1.6" width="0.254" layer="94"/>
-<wire x1="-5.52" y1="3.2" x2="-4.52" y2="3.2" width="0.254" layer="94"/>
-<wire x1="-6.27" y1="0.15" x2="-5.07" y2="0.15" width="0.254" layer="94"/>
-<wire x1="-5.07" y1="0.15" x2="-4.22" y2="1.6" width="0.254" layer="94"/>
-<wire x1="-4.52" y1="3.2" x2="-3.47" y2="1.6" width="0.254" layer="94"/>
-<wire x1="-4.22" y1="1.6" x2="-7.92" y2="1.6" width="0.254" layer="94"/>
-<wire x1="-7.92" y1="1.6" x2="-7.92" y2="0.8" width="0.254" layer="94"/>
-<wire x1="-7.92" y1="0.8" x2="-8.12" y2="0.8" width="0.254" layer="94"/>
-<wire x1="-8.12" y1="0.8" x2="-8.92" y2="1.6" width="0.254" layer="94"/>
-<wire x1="-8.92" y1="1.6" x2="-8.12" y2="2.4" width="0.254" layer="94"/>
-<wire x1="-8.12" y1="1" x2="-8.12" y2="2.4" width="0.254" layer="94"/>
-<wire x1="-8.12" y1="2.4" x2="-7.92" y2="2.4" width="0.254" layer="94"/>
-<wire x1="-7.92" y1="2.4" x2="-7.92" y2="1.6" width="0.254" layer="94"/>
-<wire x1="-8.52" y1="1.6" x2="-8.52" y2="1.4" width="0.254" layer="94"/>
-<wire x1="-8.52" y1="1.4" x2="-8.32" y2="1.2" width="0.254" layer="94"/>
-<wire x1="-8.32" y1="1.2" x2="-8.32" y2="2" width="0.254" layer="94"/>
-<wire x1="-8.32" y1="2" x2="-8.72" y2="1.6" width="0.254" layer="94"/>
-<wire x1="-10.16" y1="7.62" x2="-10.16" y2="-5.08" width="0.254" layer="94"/>
-<wire x1="-10.16" y1="-5.08" x2="7.62" y2="-5.08" width="0.254" layer="94"/>
-<circle x="-1.32" y="1.6" radius="0.5" width="1" layer="94"/>
-<circle x="-5.92" y="3.2" radius="0.2" width="1" layer="94"/>
-<text x="-10.16" y="8.636" size="1.27" layer="95">&gt;NAME</text>
-<text x="-10.16" y="-7.62" size="1.27" layer="96">&gt;VALUE</text>
-<rectangle x1="-7.12" y1="-0.45" x2="-5.92" y2="0.75" layer="94"/>
-<pin name="D+" x="10.16" y="2.54" visible="pin" length="short" rot="R180"/>
-<pin name="D-" x="10.16" y="0" visible="pin" length="short" rot="R180"/>
-<pin name="VBUS" x="10.16" y="5.08" visible="pin" length="short" direction="pwr" rot="R180"/>
-<pin name="GND" x="10.16" y="-2.54" visible="pin" length="short" direction="pwr" rot="R180"/>
-</symbol>
 <symbol name="DOT">
 <circle x="0" y="0" radius="2.54" width="0.254" layer="94"/>
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="USB-A" prefix="X">
-<description>&lt;b&gt;USB type A 'plug'&lt;/b&gt;
-&lt;p&gt;
-Used for things that can directly connect to a USB port, say USB key</description>
-<gates>
-<gate name="G$1" symbol="USB-4" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="MOLEX_480371000">
-<connects>
-<connect gate="G$1" pin="D+" pad="3"/>
-<connect gate="G$1" pin="D-" pad="2"/>
-<connect gate="G$1" pin="GND" pad="4"/>
-<connect gate="G$1" pin="VBUS" pad="1"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
 <deviceset name="FIDUCIAL">
 <description>For use by pick and place machines to calibrate the vision/machine, 1mm
 &lt;p&gt;By microbuilder.eu&lt;/p&gt;</description>
@@ -5956,9 +5885,9 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="FRAME1" library="frames" deviceset="FRAME_B_L" device=""/>
 <part name="VCC3" library="jaw" deviceset="PWR-VCC" device=""/>
 <part name="CN1" library="jaw" deviceset="MICROSD" device="-EJECT"/>
-<part name="LED1" library="dp_devices" deviceset="LED_RGB3" device=""/>
+<part name="LED1" library="jaw" deviceset="LED_RGB3" device=""/>
 <part name="SPKR2" library="jaw" deviceset="SPKR" device="-PUI-0440"/>
-<part name="D1" library="jaw" deviceset="DIODE" device="-0805" value="any"/>
+<part name="D1" library="jaw" deviceset="DIODE" device="SOD-323" value="any"/>
 <part name="GND10" library="jaw" deviceset="PWR-GND" device=""/>
 <part name="Q1" library="jaw" deviceset="MOSFET" device="SOT-23" value="IRLML6344TRPBF"/>
 <part name="R2" library="jaw" deviceset="R" device="0603" value="100"/>
@@ -5969,9 +5898,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="VCCA1" library="jaw" deviceset="PWR-VCCA" device=""/>
 <part name="VCC4" library="jaw" deviceset="PWR-VCC" device=""/>
 <part name="VCC5" library="jaw" deviceset="PWR-VCC" device=""/>
-<part name="LED2" library="jaw" deviceset="LED" device=""/>
 <part name="R9" library="jaw" deviceset="R" device="0603"/>
-<part name="LED3" library="jaw" deviceset="LED" device=""/>
 <part name="R11" library="jaw" deviceset="R" device="0603"/>
 <part name="VCC6" library="jaw" deviceset="PWR-VCC" device=""/>
 <part name="C3" library="jaw" deviceset="C" device="0603" value="4u7"/>
@@ -5981,10 +5908,12 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <part name="U1" library="jaw" deviceset="STM32F4/64" device=""/>
 <part name="C4" library="jaw" deviceset="C" device="0603" value="2u2"/>
 <part name="VCC8" library="jaw" deviceset="PWR-VCC" device=""/>
-<part name="X2" library="adafruit" deviceset="USB-A" device=""/>
+<part name="X2" library="jaw" deviceset="USB-A" device=""/>
 <part name="U$2" library="adafruit" deviceset="FIDUCIAL" device=""/>
 <part name="U$3" library="adafruit" deviceset="FIDUCIAL" device=""/>
 <part name="LOGO2" library="SparkFun-Aesthetics" deviceset="OSHW-LOGO" device="M"/>
+<part name="LED2" library="jaw" deviceset="LED_RGB3" device=""/>
+<part name="R12" library="jaw" deviceset="R" device="0603"/>
 </parts>
 <sheets>
 <sheet>
@@ -6047,10 +5976,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <instance part="VCCA1" gate="G$1" x="88.9" y="35.56"/>
 <instance part="VCC4" gate="G$1" x="302.26" y="111.76"/>
 <instance part="VCC5" gate="G$1" x="213.36" y="147.32"/>
-<instance part="LED2" gate="G$1" x="284.48" y="86.36" rot="R180"/>
-<instance part="R9" gate="G$1" x="274.32" y="86.36"/>
-<instance part="LED3" gate="G$1" x="284.48" y="76.2" rot="R180"/>
-<instance part="R11" gate="G$1" x="274.32" y="76.2"/>
+<instance part="R9" gate="G$1" x="266.7" y="86.36"/>
+<instance part="R11" gate="G$1" x="266.7" y="83.82"/>
 <instance part="VCC6" gate="G$1" x="269.24" y="175.26"/>
 <instance part="C3" gate="G$1" x="375.92" y="124.46"/>
 <instance part="GND1" gate="G$1" x="375.92" y="119.38"/>
@@ -6063,6 +5990,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <instance part="U$2" gate="G$1" x="408.94" y="33.02"/>
 <instance part="U$3" gate="G$1" x="408.94" y="25.4"/>
 <instance part="LOGO2" gate="G$1" x="398.78" y="27.94"/>
+<instance part="LED2" gate="G$1" x="284.48" y="83.82"/>
+<instance part="R12" gate="G$1" x="266.7" y="81.28"/>
 </instances>
 <busses>
 </busses>
@@ -6231,14 +6160,18 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="297.18" y1="99.06" x2="302.26" y2="99.06" width="0.1524" layer="91"/>
 <wire x1="302.26" y1="99.06" x2="302.26" y2="101.6" width="0.1524" layer="91"/>
 <junction x="302.26" y="101.6"/>
-<pinref part="LED2" gate="G$1" pin="A"/>
-<wire x1="289.56" y1="86.36" x2="302.26" y2="86.36" width="0.1524" layer="91"/>
+<wire x1="297.18" y1="86.36" x2="302.26" y2="86.36" width="0.1524" layer="91"/>
 <wire x1="302.26" y1="86.36" x2="302.26" y2="99.06" width="0.1524" layer="91"/>
 <junction x="302.26" y="99.06"/>
-<pinref part="LED3" gate="G$1" pin="A"/>
-<wire x1="289.56" y1="76.2" x2="302.26" y2="76.2" width="0.1524" layer="91"/>
-<wire x1="302.26" y1="76.2" x2="302.26" y2="86.36" width="0.1524" layer="91"/>
 <junction x="302.26" y="86.36"/>
+<pinref part="LED2" gate="G$1" pin="AB"/>
+<pinref part="LED2" gate="G$1" pin="AR"/>
+<wire x1="302.26" y1="81.28" x2="302.26" y2="83.82" width="0.1524" layer="91"/>
+<wire x1="302.26" y1="83.82" x2="302.26" y2="86.36" width="0.1524" layer="91"/>
+<wire x1="297.18" y1="83.82" x2="302.26" y2="83.82" width="0.1524" layer="91"/>
+<junction x="302.26" y="83.82"/>
+<pinref part="LED2" gate="G$1" pin="AG"/>
+<wire x1="297.18" y1="81.28" x2="302.26" y2="81.28" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="CN1" gate="G$1" pin="VCC"/>
@@ -6566,16 +6499,10 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <label x="200.66" y="86.36" size="1.27" layer="95" ratio="10"/>
 </segment>
 </net>
-<net name="N$5" class="0">
-<segment>
-<pinref part="LED2" gate="G$1" pin="C"/>
-<pinref part="R9" gate="G$1" pin="P$2"/>
-</segment>
-</net>
 <net name="IOLED3" class="0">
 <segment>
 <pinref part="R9" gate="G$1" pin="P$1"/>
-<wire x1="269.24" y1="86.36" x2="264.16" y2="86.36" width="0.1524" layer="91"/>
+<wire x1="261.62" y1="86.36" x2="259.08" y2="86.36" width="0.1524" layer="91"/>
 <label x="254" y="86.36" size="1.27" layer="95" ratio="10"/>
 </segment>
 <segment>
@@ -6584,17 +6511,11 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <label x="147.32" y="53.34" size="1.27" layer="95" ratio="10"/>
 </segment>
 </net>
-<net name="N$6" class="0">
-<segment>
-<pinref part="LED3" gate="G$1" pin="C"/>
-<pinref part="R11" gate="G$1" pin="P$2"/>
-</segment>
-</net>
 <net name="IOLED4" class="0">
 <segment>
 <pinref part="R11" gate="G$1" pin="P$1"/>
-<wire x1="269.24" y1="76.2" x2="264.16" y2="76.2" width="0.1524" layer="91"/>
-<label x="254" y="76.2" size="1.27" layer="95" ratio="10"/>
+<wire x1="261.62" y1="83.82" x2="259.08" y2="83.82" width="0.1524" layer="91"/>
+<label x="254" y="83.82" size="1.27" layer="95" ratio="10"/>
 </segment>
 <segment>
 <pinref part="U1" gate="G$1" pin="PC6"/>
@@ -6619,6 +6540,36 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <pinref part="U1" gate="G$1" pin="VCAP2"/>
 <pinref part="C4" gate="G$1" pin="P$1"/>
 <wire x1="195.58" y1="129.54" x2="218.44" y2="129.54" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="IOLED5" class="0">
+<segment>
+<pinref part="U1" gate="G$1" pin="PB0"/>
+<wire x1="160.02" y1="93.98" x2="154.94" y2="93.98" width="0.1524" layer="91"/>
+<label x="147.32" y="93.98" size="1.27" layer="95" ratio="10"/>
+</segment>
+<segment>
+<pinref part="R12" gate="G$1" pin="P$1"/>
+<wire x1="261.62" y1="81.28" x2="259.08" y2="81.28" width="0.1524" layer="91"/>
+<label x="254" y="81.28" size="1.27" layer="95" ratio="10"/>
+</segment>
+</net>
+<net name="N$5" class="0">
+<segment>
+<pinref part="R9" gate="G$1" pin="P$2"/>
+<pinref part="LED2" gate="G$1" pin="CB"/>
+</segment>
+</net>
+<net name="N$6" class="0">
+<segment>
+<pinref part="R11" gate="G$1" pin="P$2"/>
+<pinref part="LED2" gate="G$1" pin="CR"/>
+</segment>
+</net>
+<net name="N$11" class="0">
+<segment>
+<pinref part="LED2" gate="G$1" pin="CG"/>
+<pinref part="R12" gate="G$1" pin="P$2"/>
 </segment>
 </net>
 </nets>
