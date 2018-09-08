@@ -1,0 +1,51 @@
+
+
+Crypto Jawn Documentation
+
+1) insert micro sd card into device.
+*DO NOT INSERT OR REMOVE CARD WHILE DEVICE IS POWERED ON *
+
+2) insert device into usb slot on computer.
+
+3) a "Help Docs" folder should appear on your computer.
+   this help file should be there.
+   optionally, read the help files.
+
+4) a virtual serial port should appear on your computer.
+   typically, it will be called something similar to "/dev/tty.usbmodem411".
+   use your favorite terminal emulator to connect to it.
+
+     kermit -l /dev/tty.usbmodem411 -b 57600
+     screen /dev/tty.usbmodem411
+
+5a) if this is a new sd card, initialize it by typing
+
+     init
+
+   you will be prompted for a passphrase. enter something
+   long and unguessable. optionally, write it down on a post-it-note.
+
+5b) if this card is already initialized, enable it by typing
+
+      key
+
+   you will be prompted for a passphrase. enter the same one
+   you entered originally. if you have forgotten, look for
+   a post-it-note stuck on your computer monitor.
+
+
+6) the device should now appear on your computer.
+   use it as you would any other storage device.
+
+
+7) when finished, unmount + eject the device on your computer.
+   you may then enter the command
+
+     rescind
+
+  to clear the keys or just unplug it.
+
+
+8) curse loudly at poorly written, buggy software.
+   optionally, send pull request.
+
