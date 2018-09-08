@@ -7,15 +7,18 @@
 */
 
 #include <conf.h>
+#include <alloc.h>
 #include <proc.h>
 #include <gpio.h>
 #include <pwm.h>
 #include <ioctl.h>
 #include <userint.h>
+#include <crypto.h>
 
 #define SHA1LEN		20
+#define AESLEN		32
 
-static u_long randbuf[8];
+static u_long randbuf[8], randkey[8], randctr[8] ATTR_ALIGNED;
 
 void
 hmac_sha1(const u_char *src, int srclen, const u_char *key, int keylen, u_char *out, int outlen){
@@ -90,6 +93,19 @@ crypto_memcmp(u_long *a, u_long *b, int len){
 }
 
 /****************************************************************/
+void
+crypto_rand_init(void){
+    int i;
+
+    // seed from hardware rng
+    for(i=0; i<8; i++){
+        randbuf[i] ^= rng_get();
+        randkey[i] ^= rng_get();
+        randctr[i] ^= rng_get();
+    }
+}
+
+
 // generate 16 random bytes
 void
 crypto_rand16(u_long *dst){
@@ -98,32 +114,82 @@ crypto_rand16(u_long *dst){
     // *almost* certainly.
     // debias + whiten
 
-    // out_n = hwrng ^ H( out_n-1 )
+    // out = aes_ctr( hwrng )
 
-    hash_sha1_start();
-    hash_add( randbuf, 20 );
-    hash_finish( randbuf, 20 );
+    int i;
+    for(i=0; i<4; i++){
+        randbuf[i] = rng_get();
+    }
 
-    randbuf[0] ^= rng_get();
-    randbuf[1] ^= rng_get();
-    randbuf[2] ^= rng_get();
-    randbuf[3] ^= rng_get();
+    crypto_encrypt_start( CRYPTO_ALG_AES_CTR, randkey, AESLEN, randctr, AESLEN, randbuf, AESLEN );
+    crypto_add( randbuf, AESLEN );
+    crypto_final( );
+
+    // incr counter
+    int inc = 1;
+    for(i=0; i<8; i++){
+        randctr[i] += inc;
+        if( randctr[i] != 0 ) inc = 0;
+    }
 
     memcpy(dst, randbuf, 16);
 }
 
 void
-crypto_add_entropy(u_long x){
+crypto_add_entropy(u_long *src, int len){
+    int i;
 
+    // key = hash( key || input ) ^ randbuf
     hash_sha1_start();
-    hash_add( &x, 4 );
-    hash_add( randbuf, 20 );
-    hmac_finish( randbuf, 20 );
+    hash_add( randbuf, AESLEN );
+    hash_add( src, len );
+    hash_add( randkey, AESLEN );
+    hash_finish( randkey, SHA1LEN );
+
+    for(i=0; i<8; i++)
+        randkey[i] ^= randbuf[i];
+
 }
 
 /****************************************************************/
 
 #ifdef KTESTING
+
+void
+crypto_rand_dump(const char *msg){
+
+    printf("%s:\n", msg);
+    printf("R: [%32,.8H]\n", randbuf);
+    printf("K: [%32,.8H]\n", randkey);
+    printf("C: [%32,.8H]\n", randctr);
+    printf("\n");
+}
+
+DEFUN(randtest, "random test")
+{
+    char buf[16];
+
+    crypto_rand_init();
+    crypto_rand_dump("init");
+
+    crypto_rand16(buf);
+    crypto_rand_dump("rand");
+
+    crypto_rand16(buf);
+    crypto_rand_dump("rand");
+
+    crypto_rand16(buf);
+    crypto_rand_dump("rand");
+
+    crypto_add_entropy("drink ovaltine", 14);
+    crypto_rand_dump("entropy");
+
+    crypto_rand16(buf);
+    crypto_rand_dump("rand");
+
+
+    return 0;
+}
 
 DEFUN(pbkdftest, "pbkdf2 test")
 {

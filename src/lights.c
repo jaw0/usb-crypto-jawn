@@ -142,8 +142,8 @@ DEFUN(set_blinky, "set blink pattern")
 }
 
 static const u_char throb_slower[] = {
-    0, 1, 2, 4, 6, 8, 12, 16,
-    16, 12, 8, 6, 4, 2, 1, 0
+    0, 0, 1, 2, 4, 6, 8, 12, 16, 16,
+    16, 16, 12, 8, 6, 4, 2, 1, 0, 0
 };
 
 static const u_char throb_slow[40] = {

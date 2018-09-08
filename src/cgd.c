@@ -17,6 +17,11 @@
 #include "board.h"
 #include "dazzle.h"
 
+#define TRACE
+#include <trace.h>
+
+//#define USE_INTENTLOG
+
 #define SHA1LEN		20
 #define MD5LEN		16
 #define AESBLKLEN	16
@@ -127,6 +132,8 @@ cgd_init(void){
     }
     ii->sd_fs = ii->fsd->fs;
 
+    trace_init();
+    crypto_rand_init();
     bootmsg("cgd at sd0\n");
 
     // mount
@@ -147,13 +154,13 @@ cgd_isready(void){
 static void
 cgd_effect_active(){
     set_blinky( BLINK_ACTIVE );
-    play(volume, "a4c-4c+4");
+    play(volume, "a4a4c+4a3");
 }
 
 static void
 cgd_effect_inactive(){
     set_blinky( BLINK_INACTIVE );
-    play(volume, "a4c+4c-4");
+    play(volume, "a4c+4a4g3");
 }
 
 
@@ -227,6 +234,8 @@ DEFALIAS(cgdkey, key)
 {
     struct CGDinfo *ii = &cgdinfo;
 
+    crypto_add_entropy( &systime, sizeof(systime));
+
     // read wire conf - 1st disk sector
     bzero(buf1, 512);
     ii->sd_fs->bread( ii->fsd, buf1, 512, 0 );
@@ -276,6 +285,8 @@ DEFALIAS(cgdinit, init)
     struct CGDinfo *ii = &cgdinfo;
     struct stat s;
     short i, optf=0;
+
+    crypto_add_entropy( &systime, sizeof(systime));
 
     ii->sd_fs->stat( ii->fsd, &s );
 
@@ -474,6 +485,8 @@ cgd_bread(FILE*f, char*d, int len, offset_t pos){
 
     if( ! ii->isconfig ) return -1;
 
+    trace_crumb2("cgd", "read", (int)pos, len);
+
     while( len > 0 ){
         // read largest possible contiguous chunk
         u_long   b = pos >> 9;
@@ -488,14 +501,17 @@ cgd_bread(FILE*f, char*d, int len, offset_t pos){
         //kprintf("cgd read pos=%x p=%x, m=%x, b=%x i=%x l=%d\n", (int)pos, (int)p, (int)m, b, (int)ii->offset, l);
 
         // read data
+        trace_crumb1("cgd", "rdda", size);
         int s = ii->sd_fs->bread( ii->fsd, dbuf, size, (p<<9) + ii->offset );
         if( s < 1 ) return read_error(p);
 
         // read cmdata
+        trace_crumb1("cgd", "rdcm", (int)m);
         s = ii->sd_fs->bread( ii->fsd, buf1, 512, (m<<9) + ii->offset );
         if( s < 1 ) return read_error(m);
 
         // decrypt
+        trace_crumb1("cgd", "dec", l);
         short i;
         for(i=0; i<l; i++){
             s = cgd_decrypt_block(dbuf + (i<<9), d + (i<<9), b+i, buf1);
@@ -507,6 +523,7 @@ cgd_bread(FILE*f, char*d, int len, offset_t pos){
         d   += size;
     }
 
+    trace_crumb1("cgd", "ret", ret);
     return ret;
 }
 
@@ -528,6 +545,8 @@ cgd_bwrite(FILE*f, const char*d, int len, offset_t pos){
 
     // kprintf("cgd write pos=%x, len=%d\n", (int)(pos>>9), len);
 
+    trace_crumb2("cgd", "write", (int)pos, len);
+
     while( len > 0 ){
         // write largest possible contiguous chunk
         u_long   b = pos >> 9;
@@ -543,6 +562,8 @@ cgd_bwrite(FILE*f, const char*d, int len, offset_t pos){
 
         il->n = 0;	// reset intent log
 
+        trace_crumb1("cgd", "rdcm", (int)m);
+
         // read cmdata
         if( l == 16 )
             bzero(buf1, 512);
@@ -551,20 +572,28 @@ cgd_bwrite(FILE*f, const char*d, int len, offset_t pos){
             if( s < 1 ) return read_error(m);
         }
 
+        trace_crumb1("cgd", "enc", l);
+
         // encrypt
         short i;
         for(i=0; i<l; i++)
             cgd_encrypt_block(d + (i<<9), dbuf + (i<<9), b+i, buf1);
 
+#ifdef USE_INTENTLOG
+        trace_crumb0("cgd", "wril");
+
         // write intent log
         s = ii->sd_fs->bwrite( ii->fsd, ibuf, 1024, 512 );
         if( s < 1 ) return write_error(1);
+#endif
 
         // write data
+        trace_crumb1("cgd", "wrda", size);
         s = ii->sd_fs->bwrite( ii->fsd, dbuf, size, (p<<9) + ii->offset );
         if( s < 1 ) return write_error(p);
 
         // write cmdata
+        trace_crumb0("cgd", "wrcm");
         s = ii->sd_fs->bwrite( ii->fsd, buf1, 512, (m<<9) + ii->offset );
         if( s < 1 ) return write_error(m);
 
@@ -573,18 +602,11 @@ cgd_bwrite(FILE*f, const char*d, int len, offset_t pos){
         d   += size;
     }
 
+    trace_crumb1("cgd", "ret", ret);
     return ret;
 }
 
 #ifdef KTESTING
-
-DEFUN(randtest, "test random")
-{
-    crypto_rand16((u_long*)buf1);
-    hexdump(buf1, 16);
-
-    return 0;
-}
 
 DEFUN(cgdblock, "dump disk block")
 {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.5.0">
+<eagle version="7.7.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -2737,7 +2737,6 @@ extra fun!</text>
 <net name="NRST" class="0">
 <segment>
 <pinref part="C7" gate="G$1" pin="P$1"/>
-<pinref part="R2" gate="G$1" pin="P$1"/>
 <pinref part="R2" gate="G$1" pin="P$1"/>
 <junction x="119.38" y="167.64"/>
 <pinref part="SW1" gate="G$1" pin="P$2"/>
