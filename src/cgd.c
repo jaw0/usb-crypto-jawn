@@ -65,6 +65,7 @@ struct CGDwire {
     u_long	encalg;
     u_long	nsect;		// total sectors
     u_long	rsect;		// reserved sectors
+    u_long      dsect;		// sectors for user data
     u_char	syssa[KEYLEN];	// per card random value for salt
     u_char	sysiv[KEYLEN];	// per card random value for iv
     u_char	sysac[KEYLEN];	// authenticator - hmac(CGDwire, authkey)
@@ -234,7 +235,7 @@ DEFALIAS(cgdkey, key)
 {
     struct CGDinfo *ii = &cgdinfo;
 
-    crypto_add_entropy( &systime, sizeof(systime));
+    crypto_addmix_entropy( &systime, sizeof(systime));
 
     // read wire conf - 1st disk sector
     bzero(buf1, 512);
@@ -286,7 +287,7 @@ DEFALIAS(cgdinit, init)
     struct stat s;
     short i, optf=0;
 
-    crypto_add_entropy( &systime, sizeof(systime));
+    crypto_addmix_entropy( &systime, sizeof(systime));
 
     ii->sd_fs->stat( ii->fsd, &s );
 
@@ -304,13 +305,16 @@ DEFALIAS(cgdinit, init)
         }
     }
 
+    u_long blocks = s.size >> 9;
+
     // build wire conf
     bzero( & ii->wcf, sizeof(struct CGDwire) );
 
     ii->wcf.magic   = MAGIC;
     ii->wcf.version = VERSION;
     ii->wcf.encalg  = ALG_AESCGD;
-    ii->wcf.nsect   = s.size >> 9;
+    ii->wcf.nsect   = blocks;
+    ii->wcf.dsect   = ((blocks - SECTRESERVED) / 17) * 16;
     ii->wcf.rsect   = SECTRESERVED;
     ii->offset      = SECTRESERVED * 512;
 
@@ -391,7 +395,7 @@ cgd_stat(FILE *f, struct stat *s){
     struct CGDinfo *ii = f->d;
 
     int r = ii->sd_fs->stat( ii->fsd, s );
-    s->size -= ii->offset;
+    s->size = (offset_t)ii->wcf.dsect << 9;
     return r;
 }
 
@@ -410,7 +414,7 @@ cgd_decrypt_block(u_char *src, u_char *dst, u_long block, u_char *m){
     cgd_mac(src, block);
 
     if( crypto_memcmp(acbuf, md->mac, CRMACLEN) ){
-        // mismatch
+        // mac mismatch
         // NB - init does not populate disk with valid macs
         // coerce into zeroed block
         // kprintf("mac !=\n");
@@ -422,6 +426,9 @@ cgd_decrypt_block(u_char *src, u_char *dst, u_long block, u_char *m){
     crypto_decrypt_start( CRYPTO_ALG_AES_CBC, ii->scf.key1, KEYLEN, md->iv, CRIVLEN, dst, 512 );
     crypto_add( src, 512 );
     crypto_final( );
+
+    // undiffuse
+    elephant_dec(dst);
 
     return 1;
 }
@@ -435,6 +442,9 @@ cgd_encrypt_block(u_char *src, u_char *dst, u_long block, u_char *m){
     // every write gets a new iv
     cgd_new_iv();
 
+    // diffuse
+    elephant_enc(src);
+
     // encrypt
     crypto_encrypt_start( CRYPTO_ALG_AES_CBC, ii->scf.key1, KEYLEN, ivbuf, CRIVLEN, dst, 512 );
     crypto_add( src, 512 );
@@ -443,7 +453,7 @@ cgd_encrypt_block(u_char *src, u_char *dst, u_long block, u_char *m){
     // calc mac
     cgd_mac(dst, block);
 
-    // update mdata
+    // update metadata
     memcpy(md->iv,  ivbuf, CRIVLEN);
     memcpy(md->mac, acbuf, CRMACLEN);
 
@@ -482,10 +492,13 @@ cgd_bread(FILE*f, char*d, int len, offset_t pos){
     struct CGDinfo *ii = &cgdinfo;
     // struct CGDinfo *ii = f->d;
     int ret = len;
+    utime_t t0 = get_hrtime();
 
     if( ! ii->isconfig ) return -1;
 
     trace_crumb2("cgd", "read", (int)pos, len);
+    crypto_add_entropy(&pos, sizeof(pos));
+    crypto_addmix_entropy( &t0, sizeof(t0));
 
     while( len > 0 ){
         // read largest possible contiguous chunk
@@ -524,6 +537,8 @@ cgd_bread(FILE*f, char*d, int len, offset_t pos){
     }
 
     trace_crumb1("cgd", "ret", ret);
+    t0 = get_hrtime();
+    crypto_add_entropy( &t0, sizeof(t0));
     return ret;
 }
 
@@ -538,6 +553,7 @@ cgd_bwrite(FILE*f, const char*d, int len, offset_t pos){
     struct CGDinfo *ii = &cgdinfo;
     // struct CGDinfo *ii = f->d;
     struct CGDilog *il = (struct CGDilog *)ibuf;
+    utime_t t0 = get_hrtime();
     int ret = len;
     int s;
 
@@ -546,6 +562,8 @@ cgd_bwrite(FILE*f, const char*d, int len, offset_t pos){
     // kprintf("cgd write pos=%x, len=%d\n", (int)(pos>>9), len);
 
     trace_crumb2("cgd", "write", (int)pos, len);
+    crypto_add_entropy(&pos, sizeof(pos));
+    crypto_addmix_entropy( &t0, sizeof(t0));
 
     while( len > 0 ){
         // write largest possible contiguous chunk
@@ -603,6 +621,8 @@ cgd_bwrite(FILE*f, const char*d, int len, offset_t pos){
     }
 
     trace_crumb1("cgd", "ret", ret);
+    t0 = get_hrtime();
+    crypto_add_entropy( &t0, sizeof(t0));
     return ret;
 }
 

@@ -136,7 +136,7 @@ crypto_rand16(u_long *dst){
 }
 
 void
-crypto_add_entropy(u_long *src, int len){
+crypto_addmix_entropy(char *src, int len){
     int i;
 
     // key = hash( key || input ) ^ randbuf
@@ -151,9 +151,113 @@ crypto_add_entropy(u_long *src, int len){
 
 }
 
+void
+crypto_add_entropy(char *src, int len){
+    char *dst = (char*)randkey;
+    static char i = 0; // start where we left off
+
+    // key = key ^ input
+
+    for( ;len; i++, len--, src++){
+        dst[ i++ ] ^= *src;
+        if( i >= AESLEN ) i = 0;
+    }
+}
+
+/****************************************************************/
+// see:
+//   AES-CBC + Elephant diffuser A Disk Encryption Algorithm for Windows Vista
+//   https://css.csail.mit.edu/6.858/2012/readings/bitlocker.pdf
+
+#define ELEBUFSIZE 128	// disk buf in u_long
+
+static inline u_long
+elephant_rot(u_long v, int rot){
+    if( rot == 0 ) return v;
+    return (v << rot) | (v >> (32-rot));
+}
+
+static const char elephant_a_rot[] = {9, 0, 13, 0};
+static const char elephant_b_rot[] = {0, 10, 0, 25};
+
+void
+elephant_a_enc(u_long *buf, int cycles){
+    int i;
+
+    for(i=cycles*ELEBUFSIZE-1; i>=0; i--){
+        int j = i & (ELEBUFSIZE - 1);
+        buf[j] -= buf[(i-2 + ELEBUFSIZE) & (ELEBUFSIZE-1)]
+            ^ elephant_rot( buf[(i-5 + ELEBUFSIZE) & (ELEBUFSIZE-1)], elephant_a_rot[i & 3]);
+    }
+}
+
+void
+elephant_a_dec(u_long *buf, int cycles){
+    int i;
+
+    for(i=0; i<cycles*ELEBUFSIZE; i++){
+        int j = i & (ELEBUFSIZE - 1);
+        buf[j] += buf[(i-2 + ELEBUFSIZE) & (ELEBUFSIZE-1)]
+            ^ elephant_rot( buf[(i-5 + ELEBUFSIZE) & (ELEBUFSIZE-1)], elephant_a_rot[i & 3]);
+    }
+}
+
+void
+elephant_b_enc(u_long *buf, int cycles){
+    int i;
+
+    for(i=cycles*ELEBUFSIZE-1; i>=0; i--){
+        int j = i & (ELEBUFSIZE - 1);
+        buf[j] -= buf[(i+2) & (ELEBUFSIZE-1)]
+            ^ elephant_rot( buf[(i+5) & (ELEBUFSIZE-1)], elephant_b_rot[i & 3]);
+    }
+}
+
+void
+elephant_b_dec(u_long *buf, int cycles){
+    int i;
+
+    for(i=0; i<cycles*ELEBUFSIZE; i++){
+        int j = i & (ELEBUFSIZE - 1);
+        buf[j] += buf[(i+2) & (ELEBUFSIZE-1)]
+            ^ elephant_rot( buf[(i+5) & (ELEBUFSIZE-1)], elephant_b_rot[i & 3]);
+    }
+}
+
+void
+elephant_enc(u_long *buf){
+    elephant_a_enc(buf, 5);
+    elephant_b_enc(buf, 3);
+}
+
+void
+elephant_dec(u_long *buf){
+    elephant_b_dec(buf, 3);
+    elephant_a_dec(buf, 5);
+}
+
+
 /****************************************************************/
 
 #ifdef KTESTING
+
+static u_char tbuf[512];
+
+DEFUN(eletest, "test elephant")
+{
+    int i;
+    for(i=0; i<512; i++) tbuf[i] = i;
+    printf("0: [%32,.8H]\n", tbuf);
+
+    elephant_enc(tbuf);
+    elephant_dec(tbuf);
+
+    for(i=0; i<512; i+=32){
+        printf("1: [%32,.8H]\n", tbuf+i);
+    }
+
+    return 0;
+}
 
 void
 crypto_rand_dump(const char *msg){
@@ -181,8 +285,12 @@ DEFUN(randtest, "random test")
     crypto_rand16(buf);
     crypto_rand_dump("rand");
 
-    crypto_add_entropy("drink ovaltine", 14);
-    crypto_rand_dump("entropy");
+    utime_t t0 = get_hrtime();
+    crypto_add_entropy( &t0, sizeof(t0));
+    crypto_rand_dump("add");
+
+    crypto_addmix_entropy("drink ovaltine", 14);
+    crypto_rand_dump("mix");
 
     crypto_rand16(buf);
     crypto_rand_dump("rand");

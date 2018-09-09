@@ -49,3 +49,20 @@ Crypto Jawn Documentation
 8) curse loudly at poorly written, buggy software.
    optionally, send pull request.
 
+
+================================================================
+
+  WARNINGS
+
+* yanking the device out of the computer without properly
+  ejecting it first, may corrupt the data and make the entire
+  contents completely unrecoverable.
+
+* buggy, poorly written software may corrupt the data and make
+  the entire contents completely unrecoverable.
+
+* future firmware updates may may corrupt the data and make
+  the entire contents completely unrecoverable.
+
+* backing up your data is highly recommended.
+
