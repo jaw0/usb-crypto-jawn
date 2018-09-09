@@ -1,0 +1,17 @@
+
+
+EXPERIMENTAL - USE AT YOUR OWN RISK
+
+
+        INSTALLING FIRMWARE
+
+insert device into usb slot
+hold down the bootloader button (BT0)
+quickly press+release the reset button (RST)
+release the bootloader button
+
+the device is now ready to be programmed.
+something like:
+
+    dfu-util -d 0483:df11 -a 0 -s 0x08000000 -D correct-filename.bin
+
