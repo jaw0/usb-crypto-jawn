@@ -64,6 +64,15 @@ int get_button(void){
 
 }
 
+#ifdef REV1
+int get_button1(void){
+    return gpio_get( HWCF_GPIO_BUTTON2 );
+
+}
+#else
+int get_button1(void){ return 0; }
+#endif
+
 //################################################################
 
 #ifdef KTESTING
@@ -75,10 +84,18 @@ DEFUN(testcard, "test")
 
 DEFUN(testbutt, "test button")
 {
-    while( ! get_button() ){}
-    play(8, "a3a3");
-    while( get_button() ){}
-    play(8, "b3b3");
+    while( ! get_button() ){ pause(); }
+    play(8, "a3");
+    while( get_button() ){ pause(); }
+    play(8, "b3");
+    return 0;
+}
+DEFUN(testbut1, "test button")
+{
+    while( ! get_button1() ){ pause(); }
+    play(8, "a3");
+    while( get_button1() ){ pause(); }
+    play(8, "b3");
     return 0;
 }
 #endif
@@ -117,7 +134,7 @@ static usb_msc_iocf_t usbconf[2];
 
 static int is_ready(void){ return 1; }
 static int always_ready(void){ return 1; }
-static void activity_blink(void){ set_led1_rgb(0x7F7F00); }
+static void activity_blink(void){ set_led2_rgb(0x7F7F00); }
 
 extern int cgd_isready(void);
 

@@ -38,7 +38,11 @@ board_init(void){
     // card detect
     gpio_init( HWCF_GPIO_CARDDET,  GPIO_INPUT | GPIO_PULL_UP );
     // button
-    gpio_init( HWCF_GPIO_BUTTON,   GPIO_INPUT | GPIO_PULL_UP );
+    gpio_init( HWCF_GPIO_BUTTON,   GPIO_INPUT );
+
+#ifdef HWCF_GPIO_BUTTON2
+    gpio_init( HWCF_GPIO_BUTTON2,  GPIO_INPUT | GPIO_PULL_DN );
+#endif
 
     // LEDs
     gpio_init( HWCF_GPIO_LED_1R,   GPIO_AF(2) | GPIO_SPEED_2MHZ );
@@ -48,15 +52,15 @@ board_init(void){
     gpio_init( HWCF_GPIO_LED_2G,   GPIO_AF(1) | GPIO_SPEED_2MHZ );
     gpio_init( HWCF_GPIO_LED_2B,   GPIO_AF(1) | GPIO_SPEED_2MHZ );
 
-    pwm_init(  HWCF_TIMER_LED_1R,  10000, 255 );
-    pwm_init(  HWCF_TIMER_LED_2R,  10000, 255 );
+    pwm_init(  HWCF_TIMER_LED_1R,  10000, 254 );
+    pwm_init(  HWCF_TIMER_LED_2R,  10000, 254 );
 
-    pwm_set(   HWCF_TIMER_LED_1R,  0x1f);	// start with lights white
-    pwm_set(   HWCF_TIMER_LED_2R,  0x1f);
-    pwm_set(   HWCF_TIMER_LED_1B,  0x1f);
-    pwm_set(   HWCF_TIMER_LED_2B,  0x1f);
-    pwm_set(   HWCF_TIMER_LED_1G,  0x1f);
-    pwm_set(   HWCF_TIMER_LED_2G,  0x1f);
+    pwm_set(   HWCF_TIMER_LED_1R,  0x7f);	// start with lights white
+    pwm_set(   HWCF_TIMER_LED_2R,  0x7f);
+    pwm_set(   HWCF_TIMER_LED_1B,  0x7f);
+    pwm_set(   HWCF_TIMER_LED_2B,  0x7f);
+    pwm_set(   HWCF_TIMER_LED_1G,  0x7f);
+    pwm_set(   HWCF_TIMER_LED_2G,  0x7f);
 
 #if 1
     // disable jtag, swd to prevent access to running system

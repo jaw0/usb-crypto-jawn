@@ -268,6 +268,7 @@ DEFALIAS(cgdkey, key)
         printf("validation check failed.\n");
         bzero(buf1, 512);
         bzero(& ii->scf, sizeof(struct CGDconf));
+        play(volume, "d4d4d4z3d4d4d4");
         return 0;
     }
 

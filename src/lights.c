@@ -36,6 +36,10 @@ void
 set_led1_rgb(int a){
     // RGB
 
+#ifdef REV1
+    a = 0xFFFFFF - a;
+#endif
+
     u_char r1 = (a>>16) & 0xFF;
     u_char g1 = (a>> 8) & 0xFF;
     u_char b1 =  a      & 0xFF;
@@ -43,13 +47,16 @@ set_led1_rgb(int a){
     pwm_set( HWCF_TIMER_LED_1B, b1 );
     pwm_set( HWCF_TIMER_LED_1G, g1 );
     pwm_set( HWCF_TIMER_LED_1R, r1 );
-
 }
 
 void
 set_led2_rgb(int b){
     // RGB
 
+#ifdef REV1
+    b = 0xFFFFFF - b;
+#endif
+
     u_char r2 = (b>>16) & 0xFF;
     u_char g2 = (b>> 8) & 0xFF;
     u_char b2 =  b      & 0xFF;
@@ -57,42 +64,22 @@ set_led2_rgb(int b){
     pwm_set( HWCF_TIMER_LED_2B, b2 );
     pwm_set( HWCF_TIMER_LED_2G, g2 );
     pwm_set( HWCF_TIMER_LED_2R, r2 );
-
 }
 
 void
 set_leds_rgb(int a, int b){
     // RGB
 
-    u_char r1 = (a>>16) & 0xFF;
-    u_char g1 = (a>> 8) & 0xFF;
-    u_char b1 =  a      & 0xFF;
-
-    u_char r2 = (b>>16) & 0xFF;
-    u_char g2 = (b>> 8) & 0xFF;
-    u_char b2 =  b      & 0xFF;
-
-    pwm_set( HWCF_TIMER_LED_1B, b1 );
-    pwm_set( HWCF_TIMER_LED_1G, g1 );
-    pwm_set( HWCF_TIMER_LED_1R, r1 );
-
-    pwm_set( HWCF_TIMER_LED_2B, b2 );
-    pwm_set( HWCF_TIMER_LED_2G, g2 );
-    pwm_set( HWCF_TIMER_LED_2R, r2 );
-
+    set_led1_rgb(a);
+    set_led2_rgb(b);
 }
 
 // turquoise-ish
 void
 set_leds_z(int a, int b){
 
-    pwm_set( HWCF_TIMER_LED_1B, a );
-    pwm_set( HWCF_TIMER_LED_1G, a );
-    pwm_set( HWCF_TIMER_LED_1R, a>>2 );
-
-    pwm_set( HWCF_TIMER_LED_2B, b );
-    pwm_set( HWCF_TIMER_LED_2G, b );
-    pwm_set( HWCF_TIMER_LED_2R, b>>2 );
+    set_led1_rgb( (a<<14) | (a<<8) | a );
+    set_led2_rgb( (b<<14) | (b<<8) | b );
 
 }
 
@@ -123,6 +110,7 @@ DEFUN(testleds, "test leds")
 
     return 0;
 }
+
 #endif
 
 /****************************************************************/
