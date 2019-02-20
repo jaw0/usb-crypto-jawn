@@ -177,12 +177,12 @@ blinky(void){
     while(1){
         switch( current_blink_pattern ){
         case BLINK_OVERRIDE:
-            msleep(250);
+            msleep(50);
             break;
 
         case BLINK_OFF:
             set_leds_rgb( 0, 0 );
-            msleep(250);
+            msleep(50);
             break;
 
         case BLINK_NOCARD:

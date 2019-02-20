@@ -3,7 +3,7 @@
 Crypto Jawn Documentation
 
 1) insert micro sd card into device.
-*DO NOT INSERT OR REMOVE CARD WHILE DEVICE IS POWERED ON *
+*DO NOT INSERT OR REMOVE CARD WHILE DEVICE IS POWERED ON*
 
 2) insert device into usb slot on computer.
 
@@ -12,7 +12,8 @@ Crypto Jawn Documentation
    optionally, read the help files.
 
 4) a virtual serial port should appear on your computer.
-   typically, it will be called something similar to "/dev/tty.usbmodem411".
+   typically, it will be called something similar to
+   "/dev/tty.usbmodem411" (on mac), or "/dev/ttyACM0" (on linux).
    use your favorite terminal emulator to connect to it.
 
      kermit -l /dev/tty.usbmodem411 -b 57600

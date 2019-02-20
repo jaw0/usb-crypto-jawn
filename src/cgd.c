@@ -122,15 +122,16 @@ cgd_init(void){
 
     bzero(ii, sizeof(cgdinfo));
     finit( & ii->file );
-    ii->file.d   = (void*)ii;
-    ii->file.fs  = & cgd_fs;
 
     // open sd card
-    ii->fsd = fopen( "dev:sd0", "r" );
+    ii->fsd = fopen( "dev:sd0", "X" );
     if( ! ii->fsd ){
         kprintf("cgd: cannot open dev:sd0\n");
         return;
     }
+
+    ii->file.d   = (void*)ii;
+    ii->file.fs  = & cgd_fs;
     ii->sd_fs = ii->fsd->fs;
 
     trace_init();
@@ -145,6 +146,13 @@ cgd_init(void){
     fmount( & ii->file, "cgd:", "fatfs" );
     bootmsg( "cgd mounted on cgd: type fatfs\n" );
 #endif
+}
+
+int
+err_nocard(void){
+    printf("ERROR: no card\n");
+    play(32, "[3 d+4>>d-4>> ]");
+    return -1;
 }
 
 int
@@ -239,6 +247,8 @@ DEFALIAS(cgdkey, key)
 
     // read wire conf - 1st disk sector
     bzero(buf1, 512);
+
+    if( ! ii->sd_fs ) return err_nocard();
     ii->sd_fs->bread( ii->fsd, buf1, 512, 0 );
     memcpy( & ii->wcf, buf1, sizeof(struct CGDwire) );
 
@@ -290,6 +300,7 @@ DEFALIAS(cgdinit, init)
 
     crypto_addmix_entropy( &systime, sizeof(systime));
 
+    if( ! ii->sd_fs ) return err_nocard();
     ii->sd_fs->stat( ii->fsd, &s );
 
     if( argc > 1 && ! strncmp("-f", argv[1], 2) ) optf = 1;
@@ -331,6 +342,8 @@ DEFALIAS(cgdinit, init)
 
     // write to device
     bzero(buf1, 512);
+    ii->sd_fs->bwrite( ii->fsd, buf1, SECTRESERVED * 512, 0 );
+
     memcpy(buf1, & ii->wcf, sizeof(struct CGDwire) );
     ii->sd_fs->bwrite( ii->fsd, buf1, 512, 0 );
 
@@ -340,6 +353,16 @@ DEFALIAS(cgdinit, init)
     cgd_effect_active();
     ii->isformat = 1;
     ii->isconfig = 1;
+
+    return 0;
+}
+
+DEFUN(_cgdwipe_, 0)
+{
+
+    struct CGDinfo *ii = &cgdinfo;
+    bzero(buf1, 512);
+    ii->sd_fs->bwrite( ii->fsd, buf1, 512, 0 );
 
     return 0;
 }
@@ -395,6 +418,7 @@ int
 cgd_stat(FILE *f, struct stat *s){
     struct CGDinfo *ii = f->d;
 
+    if( ! ii->fsd ) return -1;
     int r = ii->sd_fs->stat( ii->fsd, s );
     s->size = (offset_t)ii->wcf.dsect << 9;
     return r;
@@ -495,6 +519,7 @@ cgd_bread(FILE*f, char*d, int len, offset_t pos){
     int ret = len;
     utime_t t0 = get_hrtime();
 
+    if( ! ii->fsd ) return -1;
     if( ! ii->isconfig ) return -1;
 
     trace_crumb2("cgd", "read", (int)pos, len);
@@ -558,6 +583,7 @@ cgd_bwrite(FILE*f, const char*d, int len, offset_t pos){
     int ret = len;
     int s;
 
+    if( ! ii->fsd ) return -1;
     if( ! ii->isconfig ) return -1;
 
     // kprintf("cgd write pos=%x, len=%d\n", (int)(pos>>9), len);
@@ -653,6 +679,7 @@ DEFUN(cgddump, "dump cgd info")
     printf("algor  %X\n", c->encalg);
     printf("nsect  %d\n", c->nsect);
     printf("resvd  %d\n", c->rsect);
+    printf("dsect  %d\n", c->dsect);
     printf("syssa  [%32,.8H]\n", c->syssa);
     printf("sysiv  [%32,.8H]\n", c->sysiv);
     printf("sysac  [%20,.8H]\n", c->sysac);

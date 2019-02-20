@@ -20,15 +20,31 @@
 
 #include "board.h"
 
+int hwmodel = 0;
 
 // T1,T2 => AF(1); T3,T4,T5 => AF(2)
 void
 board_init(void){
 
-    bootmsg("board hw init");
+    gpio_init( HWCF_GPIO_MODEL0,  GPIO_INPUT | GPIO_PULL_UP );
+    gpio_init( HWCF_GPIO_MODEL1,  GPIO_INPUT | GPIO_PULL_UP );
+    gpio_init( HWCF_GPIO_MODEL2,  GPIO_INPUT | GPIO_PULL_UP );
+    gpio_init( HWCF_GPIO_MODEL3,  GPIO_INPUT | GPIO_PULL_UP );
+    hwmodel = 0xF & ~ (GPIOC->IDR);
+
+    bootmsg("board hw init (type %d)", hwmodel);
 
     // enable i+d cache, prefetch=on => faster
     FLASH->ACR  |= 0x700;
+
+#if 1
+    // disable jtag, swd to prevent access to running system
+    gpio_init( GPIO_A13, GPIO_OUTPUT | GPIO_PUSH_PULL );
+    gpio_init( GPIO_A14, GPIO_OUTPUT | GPIO_PUSH_PULL );
+    gpio_init( GPIO_A15, GPIO_OUTPUT | GPIO_PUSH_PULL );
+    gpio_init( GPIO_B3,  GPIO_OUTPUT | GPIO_PUSH_PULL );
+    gpio_init( GPIO_B4,  GPIO_OUTPUT | GPIO_PUSH_PULL );
+#endif
 
     // beeper
     gpio_init( HWCF_GPIO_AUDIO,    GPIO_AF(1) | GPIO_SPEED_2MHZ );
@@ -43,6 +59,9 @@ board_init(void){
 #ifdef HWCF_GPIO_BUTTON2
     gpio_init( HWCF_GPIO_BUTTON2,  GPIO_INPUT | GPIO_PULL_DN );
 #endif
+
+    // testbed detect
+    gpio_init( HWCF_GPIO_TEST,     GPIO_INPUT | GPIO_PULL_DN );
 
     // LEDs
     gpio_init( HWCF_GPIO_LED_1R,   GPIO_AF(2) | GPIO_SPEED_2MHZ );
@@ -61,15 +80,6 @@ board_init(void){
     pwm_set(   HWCF_TIMER_LED_2B,  0x7f);
     pwm_set(   HWCF_TIMER_LED_1G,  0x7f);
     pwm_set(   HWCF_TIMER_LED_2G,  0x7f);
-
-#if 1
-    // disable jtag, swd to prevent access to running system
-    gpio_init( GPIO_A13, GPIO_OUTPUT | GPIO_PUSH_PULL );
-    gpio_init( GPIO_A14, GPIO_OUTPUT | GPIO_PUSH_PULL );
-    gpio_init( GPIO_A15, GPIO_OUTPUT | GPIO_PUSH_PULL );
-    gpio_init( GPIO_B3,  GPIO_OUTPUT | GPIO_PUSH_PULL );
-    gpio_init( GPIO_B4,  GPIO_OUTPUT | GPIO_PUSH_PULL );
-#endif
 
     bootmsg("\n");
 

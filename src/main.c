@@ -24,6 +24,9 @@
 
 extern void blinky(void);
 
+static usb_msc_iocf_t usbconf[2];
+
+
 
 DEFUN(save, "save all config data")
 {
@@ -114,23 +117,25 @@ main(void){
     run_script("fl0:config.rc");
     run_script("fl0:startup.rc");
 
-    play(8, "a>>4g4c+4");
-    set_leds_rgb( 0, 0 );
-
-    set_blinky( BLINK_COLORS );
     init_blinky();
+    set_blinky(BLINK_OVERRIDE);
+    printf("\nUnauthorized access prohibited.\nSystem Ready\n\n");
 
-    if( ! sdcard_detected() ){
-        set_blinky( BLINK_NOCARD );
+    // button broken?
+    if( ! sdcard_detected() || ! usbconf[0].fio ){
+        set_leds_rgb( 0xFF0000, 0xFF0000 );
         kprintf("no card installed\n");
+        play(32, "[3 d+4>>d-4>> ]");
+        set_blinky( BLINK_NOCARD );
+        return;
     }
 
-    printf("\nUnauthorized access prohibited.\nSystem Ready\n\n");
+    play(8, "a>>4g4c+4");
+    set_leds_rgb( 0, 0 );
+    set_blinky( BLINK_COLORS );
 }
 
 /****************************************************************/
-
-static usb_msc_iocf_t usbconf[2];
 
 static int is_ready(void){ return 1; }
 static int always_ready(void){ return 1; }
@@ -153,8 +158,8 @@ config_msc(){
     usbconf[0].prod = "Crypto Jawn";
     usbconf[0].activity = activity_blink;
 
-    if( !usbconf[0].fio ) kprintf("cannot open dev:ro0\n");
-    if( !usbconf[1].fio ) kprintf("cannot open dev:cgd\n");
+    if( !usbconf[0].fio ) kprintf("cannot open dev:cgd\n");
+    if( !usbconf[1].fio ) kprintf("cannot open dev:ro0\n");
 
     msc_set_conf(0, 1, usbconf);
 
