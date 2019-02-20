@@ -37,11 +37,14 @@
   on disk:
   1st sector - config
   2+3 sector - intent log
+  reserved
+  * unencrypted data
   ...
 
-  16 sectors data
-   1 sector  cmdata (iv+mac)
-   *
+  16 sectors encrypted data
+   1 sector cmdata (iv+mac)
+  ...
+
 */
 
 typedef u_char bool;
@@ -50,11 +53,20 @@ int cgd_ioctl(FILE*, int, void*);
 int cgd_bread(FILE*, char*, int, offset_t);
 int cgd_bwrite(FILE*, const char*, int, offset_t);
 int cgd_stat(FILE *, struct stat*);
+int ugd_bread(FILE*, char*, int, offset_t);
+int ugd_bwrite(FILE*, const char*, int, offset_t);
+int ugd_stat(FILE *, struct stat*);
 
 const struct io_fs cgd_fs = {
     .bread  = cgd_bread,
     .bwrite = cgd_bwrite,
     .stat   = cgd_stat,
+    .ioctl  = cgd_ioctl,
+};
+const struct io_fs ugd_fs = {
+    .bread  = ugd_bread,
+    .bwrite = ugd_bwrite,
+    .stat   = ugd_stat,
     .ioctl  = cgd_ioctl,
 };
 
@@ -65,6 +77,7 @@ struct CGDwire {
     u_long	encalg;
     u_long	nsect;		// total sectors
     u_long	rsect;		// reserved sectors
+    u_long	usect;		// sectors for unencrypted data
     u_long      dsect;		// sectors for user data
     u_char	syssa[KEYLEN];	// per card random value for salt
     u_char	sysiv[KEYLEN];	// per card random value for iv
@@ -101,12 +114,15 @@ struct CGDilog {
 struct CGDinfo {
     lock_t		lock;
     FILE 		file;
+    FILE		ufile;
     FILE 		*fsd;
     const struct io_fs *sd_fs;
 
+    offset_t		uoffset;
     offset_t		offset;
     bool		isconfig;
     bool		isformat;
+    bool		hasudata;
 
     struct CGDwire	wcf;
     struct CGDconf	scf;
@@ -115,6 +131,8 @@ struct CGDinfo {
 
 static u_char buf1[512], buf2[512], ibuf[1024], dbuf[16 * 512], ivbuf[CRIVLEN], acbuf[CRMACLEN];
 
+int cgd_read_head(struct CGDinfo *);
+
 
 void
 cgd_init(void){
@@ -122,6 +140,7 @@ cgd_init(void){
 
     bzero(ii, sizeof(cgdinfo));
     finit( & ii->file );
+    finit( & ii->ufile );
 
     // open sd card
     ii->fsd = fopen( "dev:sd0", "X" );
@@ -130,16 +149,20 @@ cgd_init(void){
         return;
     }
 
-    ii->file.d   = (void*)ii;
-    ii->file.fs  = & cgd_fs;
-    ii->sd_fs = ii->fsd->fs;
+    ii->file.d    = (void*)ii;
+    ii->file.fs   = & cgd_fs;
+    ii->ufile.d   = (void*)ii;
+    ii->ufile.fs  = & ugd_fs;
+    ii->sd_fs     = ii->fsd->fs;
 
     trace_init();
     crypto_rand_init();
+    cgd_read_head( ii );
     bootmsg("cgd at sd0\n");
 
     // mount
-    devmount( & ii->file, "cgd" );
+    devmount( & ii->file,  "cgd" );
+    devmount( & ii->ufile, "ugd" );
 
 #if 0
     // for testing
@@ -238,6 +261,31 @@ cgd_getkey(bool asktwice){
     bzero(buf1, sizeof(buf1));
 }
 
+int
+cgd_read_head(struct CGDinfo *ii){
+
+    // read wire conf - 1st disk sector
+    bzero(buf1, 512);
+
+    if( ! ii->sd_fs ) return -1;
+    ii->sd_fs->bread( ii->fsd, buf1, 512, 0 );
+    memcpy( & ii->wcf, buf1, sizeof(struct CGDwire) );
+
+    if( ii->wcf.magic == MAGIC && ii->wcf.version == VERSION ){
+        ii->uoffset  = ii->wcf.rsect * 512;
+        ii->offset   = (ii->wcf.rsect + ii->wcf.usect) * 512;
+        ii->isformat = 1;
+        if( ii->wcf.usect ) ii->hasudata = 1;
+
+    }else{
+        ii->isformat = 0;
+    }
+
+    ii->isconfig = 0;
+    return 0;
+}
+
+
 DEFUN(cgdkey, "set crypto secret key")
 DEFALIAS(cgdkey, key)
 {
@@ -245,21 +293,10 @@ DEFALIAS(cgdkey, key)
 
     crypto_addmix_entropy( &systime, sizeof(systime));
 
-    // read wire conf - 1st disk sector
-    bzero(buf1, 512);
-
-    if( ! ii->sd_fs ) return err_nocard();
-    ii->sd_fs->bread( ii->fsd, buf1, 512, 0 );
-    memcpy( & ii->wcf, buf1, sizeof(struct CGDwire) );
-
-    if( ii->wcf.magic == MAGIC && ii->wcf.version == VERSION ){
-        ii->offset   = ii->wcf.rsect * 512;
-        ii->isformat = 1;
-    }else{
-        ii->isformat = 0;
+    if( ! ii->isformat ){
+        if( cgd_read_head( ii ) )
+            return err_nocard();
     }
-
-    ii->isconfig = 0;
 
     if( ! ii->isformat ){
         printf("card not formatted as cgd. 'cgdinit' to format card.\n");
@@ -293,17 +330,31 @@ DEFALIAS(cgdkey, key)
 DEFUN(cgdinit, "initialize crypto on new sd card")
 DEFALIAS(cgdinit, init)
 // -f  force
+// -u megs - create unencrypted partition
 {
     struct CGDinfo *ii = &cgdinfo;
     struct stat s;
-    short i, optf=0;
+    u_long usect = 0;
+    short i, optf=0, udelt=0;
 
     crypto_addmix_entropy( &systime, sizeof(systime));
 
     if( ! ii->sd_fs ) return err_nocard();
     ii->sd_fs->stat( ii->fsd, &s );
 
-    if( argc > 1 && ! strncmp("-f", argv[1], 2) ) optf = 1;
+    while( argc > 1 ){
+        if( ! strncmp("-f", argv[1], 2) ) optf = 1;
+        if( ! strncmp("-u", argv[1], 2) ){
+            if( argc < 3 ){
+                printf("-u megs\n");
+                return -1;
+            }
+            usect = atoi(argv[2]) * 1024 * 2; // MB -> blocks
+        }
+
+        argc --;
+        argv ++;
+    }
 
     if( !optf ){
         // already formatted?
@@ -317,6 +368,8 @@ DEFALIAS(cgdinit, init)
         }
     }
 
+    if( ii->isformat && (ii->wcf.usect != usect) ) udelt = 1;
+
     u_long blocks = s.size >> 9;
 
     // build wire conf
@@ -326,9 +379,14 @@ DEFALIAS(cgdinit, init)
     ii->wcf.version = VERSION;
     ii->wcf.encalg  = ALG_AESCGD;
     ii->wcf.nsect   = blocks;
-    ii->wcf.dsect   = ((blocks - SECTRESERVED) / 17) * 16;
+    ii->wcf.usect   = usect;
+    ii->wcf.dsect   = ((blocks - SECTRESERVED - ii->wcf.usect) / 17) * 16;
     ii->wcf.rsect   = SECTRESERVED;
-    ii->offset      = SECTRESERVED * 512;
+    ii->uoffset     = SECTRESERVED * 512;
+    ii->offset      = (SECTRESERVED + ii->wcf.usect) * 512;
+    ii->isformat    = 0;
+    ii->isconfig    = 0;
+    ii->hasudata    = 0;
 
     crypto_rand16( ii->wcf.syssa );
     crypto_rand16( ii->wcf.syssa + 16 );
@@ -347,12 +405,20 @@ DEFALIAS(cgdinit, init)
     memcpy(buf1, & ii->wcf, sizeof(struct CGDwire) );
     ii->sd_fs->bwrite( ii->fsd, buf1, 512, 0 );
 
+    if( usect && udelt ){
+        bzero(buf1, 512);
+        ii->sd_fs->bwrite( ii->fsd, buf1, 512, ii->uoffset );
+    }
+
     // QQQ - zero metadata blocks
     // no,...so...slow....
 
     cgd_effect_active();
     ii->isformat = 1;
     ii->isconfig = 1;
+    if( usect ) ii->hasudata = 1;
+
+    // RSN - reset usb?
 
     return 0;
 }
@@ -373,9 +439,7 @@ cgd_unconfig(void){
     struct CGDinfo *ii = &cgdinfo;
 
     ii->isconfig = 0;
-    ii->isformat = 0;
     bzero( & ii->scf, sizeof(struct CGDconf) );
-    bzero( & ii->wcf, sizeof(struct CGDwire) );
 
     cgd_effect_inactive();
 }
@@ -514,8 +578,7 @@ read_error(int blk){
 
 int
 cgd_bread(FILE*f, char*d, int len, offset_t pos){
-    struct CGDinfo *ii = &cgdinfo;
-    // struct CGDinfo *ii = f->d;
+    struct CGDinfo *ii = f->d;
     int ret = len;
     utime_t t0 = get_hrtime();
 
@@ -576,8 +639,7 @@ write_error(int blk){
 
 int
 cgd_bwrite(FILE*f, const char*d, int len, offset_t pos){
-    struct CGDinfo *ii = &cgdinfo;
-    // struct CGDinfo *ii = f->d;
+    struct CGDinfo *ii = f->d;
     struct CGDilog *il = (struct CGDilog *)ibuf;
     utime_t t0 = get_hrtime();
     int ret = len;
@@ -653,6 +715,43 @@ cgd_bwrite(FILE*f, const char*d, int len, offset_t pos){
     return ret;
 }
 
+// ****************************************************************
+// access to unencrypted partition
+
+int
+ugd_isready(void){
+    return cgdinfo.isformat &&  cgdinfo.hasudata;
+}
+
+
+int
+ugd_stat(FILE *f, struct stat *s){
+    struct CGDinfo *ii = f->d;
+
+    if( ! ii->fsd ) return -1;
+    int r = ii->sd_fs->stat( ii->fsd, s );
+    s->size = (offset_t)ii->wcf.usect << 9;
+    return r;
+}
+
+int
+ugd_bread(FILE*f, char*d, int len, offset_t pos){
+    struct CGDinfo *ii = f->d;
+
+    if( ! ii->hasudata ) return -1;
+    return ii->sd_fs->bread( ii->fsd, d, len, pos + ii->uoffset );
+}
+int
+ugd_bwrite(FILE*f, const char*d, int len, offset_t pos){
+    struct CGDinfo *ii = f->d;
+
+    if( ! ii->hasudata ) return -1;
+    return ii->sd_fs->bwrite( ii->fsd, d, len, pos + ii->uoffset );
+}
+
+
+// ****************************************************************
+
 #ifdef KTESTING
 
 DEFUN(cgdblock, "dump disk block")
@@ -680,6 +779,7 @@ DEFUN(cgddump, "dump cgd info")
     printf("nsect  %d\n", c->nsect);
     printf("resvd  %d\n", c->rsect);
     printf("dsect  %d\n", c->dsect);
+    printf("usect  %d\n", c->usect);
     printf("syssa  [%32,.8H]\n", c->syssa);
     printf("sysiv  [%32,.8H]\n", c->sysiv);
     printf("sysac  [%20,.8H]\n", c->sysac);

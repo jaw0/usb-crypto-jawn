@@ -24,8 +24,9 @@
 
 extern void blinky(void);
 
-static usb_msc_iocf_t usbconf[2];
+static usb_msc_iocf_t usbconf[3];
 
+DEFVAR(int, export_help, 1, UV_TYPE_UL | UV_TYPE_CONFIG, "export the help disk")
 
 
 DEFUN(save, "save all config data")
@@ -139,29 +140,39 @@ main(void){
 
 static int is_ready(void){ return 1; }
 static int always_ready(void){ return 1; }
+static int never_ready(void){ return 0; }
+static int help_ready(void){ return export_help; }
 static void activity_blink(void){ set_led2_rgb(0x7F7F00); }
 
 extern int cgd_isready(void);
+extern int ugd_isready(void);
 
 void
 config_msc(){
 
-    usbconf[1].ready = always_ready;
+    usbconf[0].ready = cgd_isready;
+    usbconf[0].readonly = 0;
+    usbconf[0].fio = fopen("dev:cgd", "rw");
+    usbconf[0].prod = "Crypto Jawn";
+    usbconf[0].activity = activity_blink;
+
+    usbconf[1].ready = help_ready;
     usbconf[1].readonly = 1;
     usbconf[1].fio = fopen("dev:ro0", "rw");
     usbconf[1].prod = "Help Docs";
     usbconf[1].activity = 0;
 
-    usbconf[0].ready = cgd_isready;		// cgd_isready;
-    usbconf[0].readonly = 0;
-    usbconf[0].fio = fopen("dev:cgd", "rw");  	// dev:cgd
-    usbconf[0].prod = "Crypto Jawn";
-    usbconf[0].activity = activity_blink;
+    usbconf[2].ready = ugd_isready;
+    usbconf[2].readonly = 0;
+    usbconf[2].fio = fopen("dev:ugd", "rw");
+    usbconf[2].prod = "My Data";
+    usbconf[2].activity = activity_blink;
 
     if( !usbconf[0].fio ) kprintf("cannot open dev:cgd\n");
     if( !usbconf[1].fio ) kprintf("cannot open dev:ro0\n");
+    if( !usbconf[2].fio ) kprintf("cannot open dev:ugd\n");
 
-    msc_set_conf(0, 1, usbconf);
+    msc_set_conf(0, 2, usbconf);
 
 }
 
